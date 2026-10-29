@@ -6,6 +6,7 @@ Library    SeleniumLibrary
 ${NAVIGATEUR}                                   Chrome
 ${SERVEUR}                                      livraison3.testacademy.fr
 ${HOMEY URL}                                    http://${SERVEUR}/
+${DELAI ATTENTE}                                15s
 
 ${LIEN SE CONNECTER}                            xpath=//a[contains(text(),'Se connecter')]
 ${UTILISATEUR VALIDE}                           robot
@@ -32,12 +33,12 @@ Ouvrir le Navigateur Et Accéder A l'Application
     Maximize Browser Window
 
 Accéder A La Page De Connexion
-    Wait Until Element Is Visible    ${LIEN SE CONNECTER}
+    Wait Until Element Is Visible    ${LIEN SE CONNECTER}    ${DELAI ATTENTE}
     Click Element    ${LIEN SE CONNECTER}
 
 Entrer Le Nom D'utilisateur
     [Arguments]    ${nom_utilisateur}
-    Wait Until Element Is Visible    ${CHAMP NOM UTILISATEUR}
+    Wait Until Element Is Visible    ${CHAMP NOM UTILISATEUR}    ${DELAI ATTENTE}
     Click Element    ${CHAMP NOM UTILISATEUR}
     Input Text    ${CHAMP NOM UTILISATEUR}    ${nom_utilisateur}
 
@@ -48,20 +49,20 @@ Entrer Le Mot De Passe
 
 Soumettre Le Formulaire De Connexion Et Acceder Au Tableau De Bord
     Click Button    ${BOUTON VALIDER}
-    Wait Until Element Is Not Visible    ${BOUTON VALIDER}
+    Wait Until Element Is Not Visible    ${BOUTON VALIDER}    ${DELAI ATTENTE}
 
- Soumettre Le Formulaire De Connexion
-    Click Button    ${BOUTON VALIDER}   
+Soumettre Le Formulaire De Connexion
+    Click Button    ${BOUTON VALIDER}
 
 Vérifier Que L'Accueil est Visible
     Title Should Be    ${TITRE ACCUEIL}
 
 Vérifier Que Le Tableau De Bord Est Visible
-    Wait Until Element Is Not Visible    ${CHAMP NOM UTILISATEUR}
+    Wait Until Element Is Not Visible    ${CHAMP NOM UTILISATEUR}    ${DELAI ATTENTE}
     Title Should Be    ${TITRE TABLEAU DE BORD}
 
 Vérifier Que Le Message D'Erreur Est Visible
-    Wait Until Element Is Visible    ${ESPACE POUR AFFICHER LES ERREURS}
+    Wait Until Element Is Visible    ${ESPACE POUR AFFICHER LES ERREURS}    ${DELAI ATTENTE}
     Element Text Should Not Be    ${ESPACE POUR AFFICHER LES ERREURS}    ${EMPTY}
 
 Effectuer Une Déconnexion Réussie et Fermer Le Navigateur
@@ -69,17 +70,20 @@ Effectuer Une Déconnexion Réussie et Fermer Le Navigateur
     Fermer le Navigateur
 
 Effectuer Une Déconnexion Réussie
-    Wait Until Element Is Visible    ${MENU D'UTILISATEUR}    15s
+    Wait Until Element Is Visible    ${MENU D'UTILISATEUR}    ${DELAI ATTENTE}
     Mouse Over    ${MENU D'UTILISATEUR}
-    Wait Until Element Is Visible    ${LIEN SE DECONNECTER}    15s
-    Click Element    ${LIEN SE DECONNECTER}
-    Wait Until Element Is Visible    ${LIEN SE CONNECTER}    15s
+    Wait Until Page Contains Element    ${LIEN SE DECONNECTER}    ${DELAI ATTENTE}
+    # Clic JavaScript : ne dépend pas de la position de la souris
+    ${lien}=    Get WebElement    ${LIEN SE DECONNECTER}
+    Execute Javascript    arguments[0].click();    ARGUMENTS    ${lien}
+    # La déconnexion est confirmée par l'apparition du lien "Se connecter"
+    Wait Until Element Is Visible    ${LIEN SE CONNECTER}    ${DELAI ATTENTE}
 
 Vérifier Que Le Lien De Connexion Est Visible
     Element Should Be Visible    ${LIEN SE CONNECTER}
 
 Retourner A L'Accueil
-    Wait Until Element Is Visible    ${LIEN ACCUEIL}
+    Wait Until Element Is Visible    ${LIEN ACCUEIL}    ${DELAI ATTENTE}
     Click Element    ${LIEN ACCUEIL}
     Vérifier Que L'Accueil est Visible
 
@@ -93,20 +97,18 @@ Un Message d'Erreur Doit Etre Visible Apres Une Connexion Incorrecte
     Entrer Le Mot De Passe    ${mot_de_passe}
     Soumettre Le Formulaire De Connexion
     Vérifier Que Le Message D'Erreur Est Visible
-    
-Se connecter 
-    [Arguments]  ${nom_utilisateur}  ${mot_de_passe}
-    Accéder A La Page De Connexion
-    Entrer Le Nom d'Utilisateur   ${nom_utilisateur} 
-    Entrer Le Mot De Passe   ${mot_de_passe}
-    Soumettre Le Formulaire De Connexion Et Acceder Au Tableau De Bord
-    
 
+Se connecter
+    [Arguments]    ${nom_utilisateur}    ${mot_de_passe}
+    Accéder A La Page De Connexion
+    Entrer Le Nom D'utilisateur    ${nom_utilisateur}
+    Entrer Le Mot De Passe    ${mot_de_passe}
+    Soumettre Le Formulaire De Connexion Et Acceder Au Tableau De Bord
 
 Ouvrir Le Navigateur Et Accéder A La Page d'Accueil
-    Open Browser    browser=${NAVIGATEUR}  
+    Open Browser    browser=${NAVIGATEUR}
     Maximize Browser Window
-    Go To     ${HOMEY URL}
-    
+    Go To    ${HOMEY URL}
+
 Effectuer Une Connexion Avec Un Compte Valide
     Se connecter    ${UTILISATEUR VALIDE}    ${MOT DE PASSE VALIDE}
